@@ -8,7 +8,11 @@ var stringifyJSON = function (obj) {
   if (_.isArray(obj)) {
   	finalString += '[';
   	_.each(obj, function (element, index, list) {
-    	finalString += stringifyJSON(element);
+   		if ((_.isUndefined(element)) || (_.isFunction(element))) {
+  			finalString += 'null';
+    	} else {
+    		finalString += stringifyJSON(element);
+    	}
     	if (index != list.length - 1) {
     		finalString += ',';
     	}
@@ -32,9 +36,19 @@ var stringifyJSON = function (obj) {
 
   // if String
   else if (_.isString(obj)) {
-  	finalString += '"' + obj + '"';
-  } 
-
+  	finalString += '"';
+  	  // escape characters like " and \
+		for (var i = 0; i < obj.length; i += 1) {
+			if (obj[i] === '"' || obj[i] === '\\') {
+				finalString += '\\' + obj[i];
+			}
+			else {
+				finalString += obj[i];
+			}
+		}
+		finalString += '"';
+	}
+  
   // if Boolean
   else if (_.isBoolean(obj)) {
   	if (obj) {
@@ -44,15 +58,16 @@ var stringifyJSON = function (obj) {
   	}
   } 
 
-  // if Null
-  else if (_.isNull(obj)) {
+  // if Null, NaN or infinity
+  else if (_.isNull(obj) || _.isNaN(obj) || obj === Infinity || obj === -Infinity) {
   	finalString += 'null';
   } 
 
-  // if Undefined, or function, do nothing, return false
+  // if Undefined, or function, do nothing, return undefined
   else if (_.isUndefined(obj) || _.isFunction(obj)) {
-
+  	return undefined
   }
+
 
   // if anything else (number?)
   	else {
