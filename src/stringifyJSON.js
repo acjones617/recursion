@@ -20,11 +20,20 @@ var stringifyJSON = function (obj) {
   		objElements = true;
   		finalString += stringifyJSON(prop) + ':' + stringifyJSON(propVal) + ',';
   	});
-  	if (objElements) finalString = finalString.slice(0,finalString.length-2);
+ 	if (objElements) finalString = finalString.slice(0,finalString.length-1);
   	finalString += '}';
   } else if (_.isString(obj)) {
   	finalString += '"' + obj + '"';
-  } else {
+  } else if (_.isBoolean(obj)) {
+  	if (obj) {
+  		finalString += 'true';
+  	} else {
+  		finalString += 'false';
+  	}
+  } else if (_.isNull(obj)) {
+  	finalString += 'null';
+  }
+  	else {
   	finalString += obj.toString();
   }
 
