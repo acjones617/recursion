@@ -4,6 +4,7 @@
 // but you don't so you're going to have to write it from scratch:
 var stringifyJSON = function (obj) {
   var finalString = '';
+  // if Array
   if (_.isArray(obj)) {
   	finalString += '[';
   	_.each(obj, function (element, index, list) {
@@ -13,26 +14,47 @@ var stringifyJSON = function (obj) {
     	}
   	});
   	finalString += ']';
-  } else if (_.isObject(obj)) {
+  }
+  
+  // if Object
+  else if (_.isObject(obj)) {
   	finalString += '{';
   	var objElements = false;
   	_.each(obj, function (propVal, prop, object) {
-  		objElements = true;
-  		finalString += stringifyJSON(prop) + ':' + stringifyJSON(propVal) + ',';
+  		if (!(_.isUndefined(propVal)) && !(_.isFunction(propVal))) {
+  			finalString += stringifyJSON(prop) + ':' + stringifyJSON(propVal) + ',';
+				objElements = true;  	
+  		}
   	});
- 	if (objElements) finalString = finalString.slice(0,finalString.length-1);
-  	finalString += '}';
-  } else if (_.isString(obj)) {
+ 		if (objElements) finalString = finalString.slice(0,finalString.length-1);
+  		finalString += '}';
+  } 
+
+  // if String
+  else if (_.isString(obj)) {
   	finalString += '"' + obj + '"';
-  } else if (_.isBoolean(obj)) {
+  } 
+
+  // if Boolean
+  else if (_.isBoolean(obj)) {
   	if (obj) {
   		finalString += 'true';
   	} else {
   		finalString += 'false';
   	}
-  } else if (_.isNull(obj)) {
+  } 
+
+  // if Null
+  else if (_.isNull(obj)) {
   	finalString += 'null';
+  } 
+
+  // if Undefined, or function, do nothing, return false
+  else if (_.isUndefined(obj) || _.isFunction(obj)) {
+
   }
+
+  // if anything else (number?)
   	else {
   	finalString += obj.toString();
   }
