@@ -28,13 +28,13 @@ describe("stringifyJSON", function(){
     });
 */
 
-
-    objectWithInvalidAttributes.forEach(function(obj){
+/*
+    extraCreditStrings.forEach(function(obj){
       var result = stringifyJSON(obj);
       var expected = JSON.stringify(obj);
       expect(result).toEqual(expected);
     });
-
+*/
 /*
     objectWithInvalidAttributes.forEach(function(obj){
       var result = stringifyJSON(obj);
