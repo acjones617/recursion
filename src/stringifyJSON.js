@@ -4,13 +4,16 @@
 // but you don't so you're going to have to write it from scratch:
 var stringifyJSON = function (obj) {
   var finalString = '';
-  if (Array.isArray(obj)) {
+  if (_.isArray(obj)) {
   	finalString += '[';
   	_.each(obj, function (element, index, list) {
-    	finalString += stringifyJSON(element) + (index !== list.length - 1) ? ',';
+    	finalString += stringifyJSON(element);
+    	if (index != list.length - 1) {
+    		finalString += ',';
+    	}
   	});
   	finalString += ']';
-  } else if (!(obj.length)) {
+  } else if (_.isObject(obj)) {
   	finalString += '{';
   	var objElements = false;
   	_.each(obj, function (propVal, prop, object) {
