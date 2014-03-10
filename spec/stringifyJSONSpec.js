@@ -7,6 +7,19 @@ describe("stringifyJSON", function(){
       var expected = JSON.stringify(obj);
       expect(result).toEqual(expected);
     });
+
+    nonStringifiableValues.forEach(function(obj){
+      var result = stringifyJSON(obj);
+      var expected = JSON.stringify(obj);
+      expect(result).toEqual(expected);
+    });
+
+    arrayWithInvalidStrings.forEach(function(obj){
+      var result = stringifyJSON(obj);
+      var expected = JSON.stringify(obj);
+      expect(result).toEqual(expected);
+    });
+
 /*
     arrayWithValidElements.forEach(function(obj){
       var result = stringifyJSON(obj);
@@ -14,11 +27,20 @@ describe("stringifyJSON", function(){
       expect(result).toEqual(expected);
     });
 */
+
+
     objectWithInvalidAttributes.forEach(function(obj){
       var result = stringifyJSON(obj);
       var expected = JSON.stringify(obj);
       expect(result).toEqual(expected);
     });
 
+/*
+    objectWithInvalidAttributes.forEach(function(obj){
+      var result = stringifyJSON(obj);
+      var expected = JSON.stringify(obj);
+      expect(result).toEqual(expected);
+    });
+*/
   });
 });
