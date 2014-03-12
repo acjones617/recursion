@@ -4,12 +4,8 @@
 // };
 
 // But instead we're going to implement it from scratch:
-var getElementsByClassName = function (className, nodes, nList) {
+var getElementsByClassName = function (className, nodes) {
   var NodeList = [];
-
-  if (nList) {
-  	NodeList = nList;
-  }
 
   if (!nodes) {
   	nodes = document.body;
@@ -23,11 +19,10 @@ var getElementsByClassName = function (className, nodes, nList) {
   	});
 
   	if (element.childNodes) {
-  		getElementsByClassName(className, element, NodeList);
-  	}
+  		NodeList = _.union(NodeList, getElementsByClassName(className, element));
+  	}	
   	
   });
 
   return NodeList;
-
 };
