@@ -7,7 +7,7 @@ var parseJSON = function (json) {
   var jProd;
 
   var makeArray = function (text, finalProd) {
-  	return [].push(parseJSON(text));
+  	return [parseJSON(text)];
   }
 
   var makeString = function (text, finalProd) {
@@ -18,27 +18,30 @@ var parseJSON = function (json) {
   	// if Array:
   	if (json[i] === '[') {
   		var endArr = json.indexOf(']', i);
-  		jProd += makeArray(json.slice(i + 1, endArr));
+  		var beginArr = i + 1;
   		i = endArr;
+  		return makeArray(json.slice(beginArr, endArr));
   	}
 
   	// if Object:
 
   	// if String:
   	if (json[i] === '"') {
-  		var endArr = json.indexOf('"', i+1);
-  		jProd += makeString(json.slice(i + 1, endArr), jProd);
+  		var endArr = json.indexOf('"', i + 1);
+  		return makeString(json.slice(i + 1, endArr), jProd);
   	}
 
   	// if Boolean:
   	if (json.slice(i,i+4) === 'true') {
-  		jProd += true;
+  		return true;
   	}
 
   	if (json.slice(i,i+5) === 'false') {
-  		jProd += false;
+  		return false;
   	}
 
   }
+
+  return jProd;
 
 };
