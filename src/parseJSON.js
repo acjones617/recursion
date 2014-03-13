@@ -5,80 +5,93 @@
 var parseJSON = function (json) {
   var jText = json;
 
-	var nestedArrays = function (text, beginSearch) {
- 		var newArrNest = text.indexOf('[', beginSearch);
- 		if (newArrNest === -1) {
- 			return false;
- 		}
-  	return newArrNest;
- 	}
-
- 	var pullFullArray = function (text) {
- 		var endArr = text.indexOf(']');
-  	var beginArr = 1
-  	var beginNestSearch = 1;
-  	var arrayContent = text.slice(beginArr, endArr);
-  	while (nestedArrays(arrayContent, beginNestSearch)) {
-  		beginNestSearch = nestedArrays(arrayContent, beginNestSearch) + 1;
-  		endArr = text.indexOf(']', endArr + 1);
+  var findEndArray = function (text, startIndex, endIndex) {
+  	if (!endIndex) {
+  		endIndex = startIndex;
   	}
-  	return endArr;
- 	}
+  	var endArr = text.indexOf(']', endIndex);
+  	var nestedArr = text.slice(0, endArr).indexOf('[', startIndex);
+  	if (nestedArr === -1) {
+  		return endArr;
+  	} else {
+  		return findEndArray(text, nestedArr + 1, endArr + 1);
+  	}
+  }
+
+  var findEndObj = function (text, startIndex, endIndex) {
+  	if (!endIndex) {
+  		endIndex = startIndex;
+  	}
+  	var endObj = text.indexOf('}', endIndex);
+  	var nestedObj = text.slice(0, endArr).indexOf('{', startIndex);
+  	if (nestedObj === -1) {
+  		return endObj;
+  	} else {
+  		return findEndObj(text, nestedObj + 1, endObj + 1);
+  	}
+  }
+
+  var makeObj = function (text) {
+  	var obj = {};
+  	for (var j = 0; j < text.length; j++) {
+  		var beginProp = j;
+  		var endProp = text.indexOf(':', j);
+  		var endPropVal = text.indexOf(',', endProp);
+  		if (endProp === -1) {
+  			return obj;
+  		}
+  		if (endPropVal === -1) {
+  			j = text.length;
+  			obj[parseJSON(text.slice(beginProp, endProp))] = parseJSON(text.slice(endProp + 1));
+  		} else {
+  			j = endPropVal;
+  			obj[parseJSON(text.slice(beginProp, endProp))] = parseJSON(text.slice(endProp + 1, endPropVal));
+  		}
+  	}
+
+  	return obj;
+  }
 
   var makeArray = function (text) {
-  	// split elements by comma
   	var arr = [];
 
   	for (var j = 0; j < text.length; j++) {
   		var endElement = text.indexOf(',', j);
-  		var newArr = text.indexOf('[', j);
   		var beginElement = j;
+  		var nestedArr = text.indexOf('[', j);
   		
-// 4 combos - yes or no new array, yes or no another element at end
-// if yes new array, AND yes another element, push new array, place j at start of next element
-// if yew new array, AND no another element, push new array, place j at end of text
-// if no new array, AND yes another element, push parseJSON text before next element, place j at start of next element
-// if no new array, AND no other element, push parseJSON text, place j at end of text.
+  		// Either:
+  		//	1. Comma comes next before a possible new nested Array
+  		//  2. new nested array comes first
+  		//		a. At end of array, there is another element following
+  		// 		b. At end of array, all other nested arrays end, no elements follow.
+  		//  3. there is no next comma/nested array
 
-  		if (newArr === -1 || newArr >= endElement) {
-  			if (endElement === -1) {
+  		// 1:
+  		if (endElement !== -1 && (endElement < nestedArr || nestedArr === -1)) {
+  			j = endElement;
+  			arr.push(parseJSON(text.slice(beginElement, endElement)));
+  		} 
+  		// 2:
+  		else if (nestedArr !== -1 && (nestedArr < endElement || endElement === -1)) {
+  			var endNestedArr = findEndArray(text, nestedArr + 1);
+  			var nextElement = text.indexOf(',',endNestedArr);
+  			// 2a:
+  			if (nextElement !== -1){
+  				j = nextElement;	
+  			}
+  			// 2b:
+  			else {
   				j = text.length;
-  				var arrText = parseJSON(text.slice(beginElement));
-  				if (arrText !== undefined) {
-  					arr.push(arrText);
-  				}
-  			} else {
-  				j = endElement;
-  				arr.push(parseJSON(text.slice(beginElement, endElement)));
   			}
-  		} else {
-  			var endArr = pullFullArray(text.slice(newArr)) + newArr;
-  			arr.push(makeArray(text.slice(newArr + 1, endArr)));
-  			var restartJ = text.indexOf(',', endArr);
- 				if (restartJ === -1) {
-  				j = text.length;  			
- 				} else {
- 					j = restartJ + 1;
- 				}
+  			arr.push(makeArray(text.slice(beginElement + 1, endNestedArr)));
   		}
-  		
-/*
-  		if (newArr !== -1) {
-
-  			arr.push(makeArray())
-  		}
-  		if (endElement !== -1) {
-  				j = endElement;
-  				arr.push(parseJSON(text.slice(beginElement, endElement)));
-  			}
-  			
-  		} else {
+  		// 3:
+  		else {
   			j = text.length;
   			arr.push(parseJSON(text.slice(beginElement)));
   		}
-*/
   	}
-
   	return arr;
   }
 
@@ -95,32 +108,23 @@ var parseJSON = function (json) {
 
   for (var i = 0; i < json.length; i++) {
   	
-  	// if Array: //	
+  	// if Array:
   	if (json[i] === '[') {
+  		var endArr = findEndArray(json, i + 1);
   		var beginArr = i + 1;
-  		i = pullFullArray(json.slice(i)) + i;
-  		return makeArray(json.slice(beginArr, i));
-  	}
-  		
-/*
-  		var endArr = json.indexOf(']', i);
-  		var beginArr = i + 1;
-  		var beginNestSearch = i + 1;
-  		var arrayContent = json.slice(beginArr, endArr);
-  		while (nestedArrays(arrayContent, beginNestSearch)) {
-  			beginNestSearch = nestedArrays(arrayContent, beginNestSearch) + 1;
-  			endArr = json.indexOf(']', endArr + 1);
-  		}
-  		arrayContent = json.slice(beginArr, endArr);
   		i = endArr;
-  		return makeArray(arrayContent);
+  		return makeArray(json.slice(beginArr, endArr));
   	}
-*/
-// [2, [, 3, [4] ] ];
 
-  	// if Object: //
+  	// if Object:
+  	if (json[i] === '{') {
+  		var endObj = findEndObj(json, i + 1);
+  		var beginObj = i + 1;
+  		i = endObj;
+  		return makeObj(json.slice(beginObj, endObj));
+  	}
 
-  	// if Number: //
+  	// if Number:
   	var numChars = ['0','1','2','3','4','5','6','7','8','9','-','.']
   	var isFloat = function (str, alreadyFloat) {
   		if (str === '.' || alreadyFloat) {
@@ -160,10 +164,10 @@ var parseJSON = function (json) {
   		return false;
   	}
 
-  	// if none of the above (whitespace)
-  	var whitespace = ['', ' ', '\b', '\f', '\n', '\r', '\t'];
-  	if (_.contains(whitespace, json[i])) {
-  		return '';
+  	// if null:
+  	if (json.slice(i, i+4) === 'null') {
+  		i += 3;
+  		return null;
   	}
 
   }
