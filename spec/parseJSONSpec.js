@@ -1,7 +1,15 @@
 // test cases are described in fixtures.js
 describe("parseJSON", function(){
   it("should match the result of calling JSON.parse", function(){
-    [["a"], true, 3, [true, false]].forEach(function(obj){
+    [["a"], true, 3, null, [true,false, "andrew", 3.4], [33,45], [1,[2,3, [33]], 2,8,532,[4,[5,2]]] , [[[12,2, 323377], {}]], false].forEach(function(obj){
+      var result = parseJSON(JSON.stringify(obj));
+      var equality = _.isEqual(result, obj); // why can't we use `===` here?
+      expect(result).toEqual(obj);
+    });
+  });
+
+  it("should match the result of calling JSON.parse", function(){
+    stringifiableValues.forEach(function(obj){
       var result = parseJSON(JSON.stringify(obj));
       var equality = _.isEqual(result, obj); // why can't we use `===` here?
       expect(result).toEqual(obj);
