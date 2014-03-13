@@ -31,7 +31,7 @@ var parseJSON = function (json) {
 
   	for (var j = 0; j < text.length; j++) {
   		var endElement = text.indexOf(',', j);
-  		var newArr = text.slice(j, endElement).indexOf('[');
+  		var newArr = text.indexOf('[', j);
   		var beginElement = j;
   		
 // 4 combos - yes or no new array, yes or no another element at end
@@ -40,22 +40,25 @@ var parseJSON = function (json) {
 // if no new array, AND yes another element, push parseJSON text before next element, place j at start of next element
 // if no new array, AND no other element, push parseJSON text, place j at end of text.
 
-  		if (newArr === -1) {
+  		if (newArr === -1 || newArr >= endElement) {
   			if (endElement === -1) {
   				j = text.length;
-  				arr.push(parseJSON(text.slice(beginElement)));
+  				var arrText = parseJSON(text.slice(beginElement));
+  				if (arrText !== undefined) {
+  					arr.push(arrText);
+  				}
   			} else {
   				j = endElement;
   				arr.push(parseJSON(text.slice(beginElement, endElement)));
   			}
-  		}
-  		else {
-  			var endArr = pullFullArray(text.slice(beginElement + newArr)) + beginElement + newArr;
-  			arr.push(makeArray(text.slice(beginElement + newArr + 1, endArr)));
- 				if (endElement === -1) {
+  		} else {
+  			var endArr = pullFullArray(text.slice(newArr)) + newArr;
+  			arr.push(makeArray(text.slice(newArr + 1, endArr)));
+  			var restartJ = text.indexOf(',', endArr);
+ 				if (restartJ === -1) {
   				j = text.length;  			
  				} else {
- 					j = endElement;
+ 					j = restartJ + 1;
  				}
   		}
   		
@@ -155,6 +158,12 @@ var parseJSON = function (json) {
   	if (json.slice(i, i+5) === 'false') {
   		i += 4;
   		return false;
+  	}
+
+  	// if none of the above (whitespace)
+  	var whitespace = ['', ' ', '\b', '\f', '\n', '\r', '\t'];
+  	if (_.contains(whitespace, json[i])) {
+  		return '';
   	}
 
   }
