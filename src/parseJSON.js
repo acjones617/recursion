@@ -4,9 +4,8 @@
 // but you're not, so you'll write it from scratch:
 var parseJSON = function (json) {
   var jText = json;
-  var jProd;
 
-  var makeArray = function (text, finalProd) {
+  var makeArray = function (text) {
   	// split elements by comma
   	var arr = [];
 
@@ -25,7 +24,7 @@ var parseJSON = function (json) {
   	return arr;
   }
 
-  var makeString = function (text, finalProd) {
+  var makeString = function (text) {
   	return text;
   }
 
@@ -74,7 +73,7 @@ var parseJSON = function (json) {
   		var endStr = json.indexOf('"', i+1);
   		var beginStr = i + 1;
   		i = endStr;
-  		return makeString(json.slice(beginStr, endStr), jProd);
+  		return makeString(json.slice(beginStr, endStr));
   	}
 
   	// if Boolean:
@@ -90,6 +89,6 @@ var parseJSON = function (json) {
 
   }
 
-  return jProd;
+  
 
 };
