@@ -31,7 +31,7 @@ var parseJSON = function (json) {
   		endIndex = startIndex;
   	}
   	var endObj = text.indexOf('}', endIndex);
-  	var nestedObj = text.slice(0, endArr).indexOf('{', startIndex);
+  	var nestedObj = text.slice(0, endObj).indexOf('{', startIndex);
   	if (nestedObj === -1) {
   		return endObj;
   	} else {
@@ -85,10 +85,10 @@ var parseJSON = function (json) {
   		// 1:
   		if (endElement !== -1 && (endElement < nestedArr || nestedArr === -1)) {
         // case where there is a nested object with a comma that messes this up
-//        var objAsElement = text.slice(0, endElement).indexOf('{', j);
-//        if (objAsElement !== -1) {
-//          endElement = text.indexOf(',', findEndObj(text, objAsElement + 1));
-//        }
+        var objAsElement = text.slice(0, endElement).indexOf('{', beginElement);
+        if (objAsElement !== -1) {
+          endElement = text.indexOf(',', findEndObj(text, objAsElement + 1));
+       }
 
   			j = endElement;
   			arr.push(parseJSON(text.slice(beginElement, endElement)));
