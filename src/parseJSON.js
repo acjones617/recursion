@@ -29,6 +29,13 @@ var parseJSON = function (json) {
   	return text;
   }
 
+  var makeNum = function (text, numType) {
+  	if (numType) {
+  		return parseFloat(text);
+  	}
+  	return parseInt(text);
+  }
+
   for (var i = 0; i < json.length; i++) {
   	
   	// if Array:
@@ -41,28 +48,43 @@ var parseJSON = function (json) {
 
   	// if Object:
 
+  	// if Number:
+  	var numChars = ['0','1','2','3','4','5','6','7','8','9','-','.']
+  	var isFloat = function (str, alreadyFloat) {
+  		if (str === '.' || alreadyFloat) {
+  			return true;
+  		}
+  		return false;
+  	}
 
-  	// if encounters a comma in an array/object:
-  	if (json[i] === ',') {
-
+  	if (_.contains(numChars, json[i])) {
+  		var floatType = isFloat(json[i], false);
+  		var endNum = i + 1;
+  		var beginNum = i;
+  		while (_.contains(numChars, json[endNum])) {
+   			floatType = isFloat(json[endNum], floatType);
+  			endNum++;
+  		}
+  	 	i = endNum - 1;
+  	 	return makeNum(json.slice(beginNum, endNum), floatType);
   	}
 
   	// if String:
   	if (json[i] === '"') {
   		var endStr = json.indexOf('"', i+1);
-  		var beginStr = i+1;
-  		i = endStr+1;
+  		var beginStr = i + 1;
+  		i = endStr;
   		return makeString(json.slice(beginStr, endStr), jProd);
   	}
 
   	// if Boolean:
   	if (json.slice(i, i+4) === 'true') {
-  		i += 4;
+  		i += 3;
   		return true;
   	}
 
   	if (json.slice(i, i+5) === 'false') {
-  		i += 5;
+  		i += 4;
   		return false;
   	}
 
