@@ -3,7 +3,6 @@
 
 // but you're not, so you'll write it from scratch:
 var parseJSON = function (json) {
-  var jText = json;
 
   var findEndArray = function (text, startIndex, endIndex) {
     // startIndex should be the start of the inside of the array, i.e. the char after [
