@@ -6,6 +6,10 @@ var parseJSON = function (json) {
   var jText = json;
 
   var findEndArray = function (text, startIndex, endIndex) {
+    // startIndex should be the start of the inside of the array, i.e. the char after [
+    // endIndex should be the previously found ] character, if one exists. When calling outside this function, endIndex is usually left undefined.
+    // text can be the entire unsliced text, just keep in mind when defining startIndex.
+
   	if (!endIndex) {
   		endIndex = startIndex;
   	}
@@ -19,6 +23,10 @@ var parseJSON = function (json) {
   }
 
   var findEndObj = function (text, startIndex, endIndex) {
+    // startIndex should be the start of the inside of the object, i.e. the char after {
+    // endIndex should be the previously found } character, if one exists. When calling outside this function, endIndex is usually left undefined.
+    // text can be the entire unsliced text, just keep in mind when defining startIndex.
+
   	if (!endIndex) {
   		endIndex = startIndex;
   	}
@@ -37,6 +45,13 @@ var parseJSON = function (json) {
   		var beginProp = j;
   		var endProp = text.indexOf(':', j);
   		var endPropVal = text.indexOf(',', endProp);
+      // case where array is a propVal, and comma within array messes this up
+      var arrPropVal = text.slice(0,endPropVal).indexOf('[', endProp);
+      if (arrPropVal !== -1) {
+        endPropVal = text.indexOf(',', findEndArray(text, arrPropVal + 1))
+      }
+
+      // Moving on...
   		if (endProp === -1) {
   			return obj;
   		}
@@ -69,6 +84,12 @@ var parseJSON = function (json) {
 
   		// 1:
   		if (endElement !== -1 && (endElement < nestedArr || nestedArr === -1)) {
+        // case where there is a nested object with a comma that messes this up
+//        var objAsElement = text.slice(0, endElement).indexOf('{', j);
+//        if (objAsElement !== -1) {
+//          endElement = text.indexOf(',', findEndObj(text, objAsElement + 1));
+//        }
+
   			j = endElement;
   			arr.push(parseJSON(text.slice(beginElement, endElement)));
   		} 
