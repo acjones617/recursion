@@ -87,8 +87,13 @@ var parseJSON = function (json) {
         // case where there is a nested object with a comma that messes this up
         var objAsElement = text.slice(0, endElement).indexOf('{', beginElement);
         if (objAsElement !== -1) {
-          endElement = text.indexOf(',', findEndObj(text, objAsElement + 1));
-       }
+          var endObj = findEndObj(text, objAsElement + 1);
+          endElement = text.indexOf(',', endObj);
+          // object could be last element in array.
+          if (endElement === -1) {
+            endElement = endObj + 1;
+          }
+        }
 
   			j = endElement;
   			arr.push(parseJSON(text.slice(beginElement, endElement)));
