@@ -4,6 +4,9 @@
 // but you're not, so you'll write it from scratch:
 var parseJSON = function (json) {
 
+
+  // Function that will find the index of the end of an array, given it's start
+  // Takes care of confusion with multiple end-array characters in case of nested arrays
   var findEndArray = function (text, startIndex, endIndex) {
     // startIndex should be the start of the inside of the array, i.e. the char after [
     // endIndex should be the previously found ] character, if one exists. When calling outside this function, endIndex is usually left undefined.
@@ -21,6 +24,8 @@ var parseJSON = function (json) {
   	}
   }
 
+  // Function that will find the index of the end of an object, given it's start
+  // Takes care of confusion with multiple end-object characters in case of nested objects
   var findEndObj = function (text, startIndex, endIndex) {
     // startIndex should be the start of the inside of the object, i.e. the char after {
     // endIndex should be the previously found } character, if one exists. When calling outside this function, endIndex is usually left undefined.
@@ -44,16 +49,17 @@ var parseJSON = function (json) {
   		var beginProp = j;
   		var endProp = text.indexOf(':', j);
   		var endPropVal = text.indexOf(',', endProp);
-      // case where array is a propVal, and comma within array messes this up
+      // Take care of case where array is a propVal, and commas within array messes up finding end of PropVal
       var arrPropVal = text.slice(0,endPropVal).indexOf('[', endProp);
       if (arrPropVal !== -1) {
         endPropVal = text.indexOf(',', findEndArray(text, arrPropVal + 1))
       }
 
-      // Moving on...
+      // Takes care of case of empty object
   		if (endProp === -1) {
   			return obj;
   		}
+      // If we're on last prop of object, no more commas found, take us to end of text.
   		if (endPropVal === -1) {
   			j = text.length;
   			obj[parseJSON(text.slice(beginProp, endProp))] = parseJSON(text.slice(endProp + 1));
@@ -76,14 +82,14 @@ var parseJSON = function (json) {
   		
   		// Either:
   		//	1. Comma comes next before a possible new nested Array
-  		//  2. new nested array comes first
+  		//  2. New nested array comes first
   		//		a. At end of array, there is another element following
   		// 		b. At end of array, all other nested arrays end, no elements follow.
-  		//  3. there is no next comma/nested array
+  		//  3. There is no next comma/nested array
 
   		// 1:
   		if (endElement !== -1 && (endElement < nestedArr || nestedArr === -1)) {
-        // case where there is a nested object with a comma that messes this up
+        // Take care of case where there is a nested object with a comma that messes this up
         var objAsElement = text.slice(0, endElement).indexOf('{', beginElement);
         if (objAsElement !== -1) {
           var endObj = findEndObj(text, objAsElement + 1);
@@ -121,11 +127,12 @@ var parseJSON = function (json) {
   }
 
   var makeString = function (text) {
-  	return text;
+    // How to parse through escape characters?
+    return text;
   }
 
-  var makeNum = function (text, numType) {
-  	if (numType) {
+  var makeNum = function (text, floatType) {
+  	if (floatType) {
   		return parseFloat(text);
   	}
   	return parseInt(text);

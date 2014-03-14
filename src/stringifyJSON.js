@@ -4,6 +4,7 @@
 // but you don't so you're going to have to write it from scratch:
 var stringifyJSON = function (obj) {
   var finalString = '';
+  
   // if Array
   if (_.isArray(obj)) {
   	finalString += '[';
@@ -13,7 +14,7 @@ var stringifyJSON = function (obj) {
     	} else {
     		finalString += stringifyJSON(element);
     	}
-    	if (index != list.length - 1) {
+    	if (index !== list.length - 1) {
     		finalString += ',';
     	}
   	});
@@ -30,8 +31,11 @@ var stringifyJSON = function (obj) {
 				objElements = true;  	
   		}
   	});
- 		if (objElements) finalString = finalString.slice(0,finalString.length-1);
-  		finalString += '}';
+    // Slice off the last comma added if object has elements
+ 		if (objElements) {
+      finalString = finalString.slice(0,finalString.length-1);
+    }
+  	finalString += '}';
   } 
 
   // if String
@@ -67,7 +71,6 @@ var stringifyJSON = function (obj) {
   else if (_.isUndefined(obj) || _.isFunction(obj)) {
   	return undefined
   }
-
 
   // if anything else (number?)
   	else {
