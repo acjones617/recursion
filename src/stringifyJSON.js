@@ -31,7 +31,7 @@ var stringifyJSON = function (obj) {
 				objElements = true;  	
   		}
   	});
-    // Slice off the last comma added if object has elements
+    // Slice off the last comma in string added if object has elements
  		if (objElements) {
       finalString = finalString.slice(0,finalString.length-1);
     }
